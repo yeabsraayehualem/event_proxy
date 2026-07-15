@@ -16,6 +16,7 @@ RUN apk --no-cache add ca-certificates
 
 COPY --from=builder /app/event_proxy .
 
+
 EXPOSE 8090
 
 CMD ["./event_proxy"]
