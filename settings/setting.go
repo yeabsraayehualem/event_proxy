@@ -7,6 +7,9 @@ import (
 	"event_proxy/handlers"
 	"fmt"
 	"net/http"
+	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -14,13 +17,25 @@ type Config struct {
 	DB     *sql.DB
 }
 
-func NewConfig() (*Config, error) {
-	// TODO: Change this to read from .env first then from Vault  to get the odoo events dbhost, port dbname,db user and password
-	dbcon, err := database.Connect(
-		"localhost", "5210", "cbe_event", "cbe_event", "you8e",
-	)
-	if err != nil {
+func getEnv(key, fallback string) string {
+	if val := os.Getenv(key); val != "" {
+		return val
+	}
+	return fallback
+}
 
+func NewConfig() (*Config, error) {
+	// Load from .env if present; ignore error if file doesn't exist (env vars may be set directly)
+	_ = godotenv.Load()
+
+	host := getEnv("DB_HOST", "localhost")
+	port := getEnv("DB_PORT", "5210")
+	user := getEnv("DB_USER", "cbe_event")
+	password := getEnv("DB_PASSWORD", "cbe_event")
+	dbname := getEnv("DB_NAME", "you8e")
+
+	dbcon, err := database.Connect(host, port, user, password, dbname)
+	if err != nil {
 		fmt.Printf("Unable to connect db %v", err)
 		return nil, err
 	}
@@ -35,6 +50,7 @@ func NewConfig() (*Config, error) {
 
 	return app, nil
 }
+
 
 func (c *Config) Start(ctx context.Context) error {
 
