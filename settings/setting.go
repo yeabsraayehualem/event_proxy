@@ -59,10 +59,10 @@ func (c *Config) Start(ctx context.Context) error {
 		Handler: c.router,
 	}
 
-	if err := server.ListenAndServe(); err != nil {
-		return fmt.Errorf("Failed to strt server : %w", err)
-	}
 	fmt.Println("server running at http://localhost:8090")
+	if err := server.ListenAndServe(); err != nil {
+		return fmt.Errorf("Failed to start server: %w", err)
+	}
 
 	return nil
 }
